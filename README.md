@@ -4,16 +4,16 @@ Main contributors of this website are : Sahil Jain and Rawan Al Mobarak
 
 This website was created using GitHub pages and the purpose of this website is to serve as a dashboard for the project visualization. 
 
-You can use the [editor on GitHub](https://github.com/CS360FinalProject/Gun-Crimes/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+You can directly click on this link to access our website and see our work on the visaulization [Gun violence visualuzation]( https://cs360finalproject.github.io/Gun-Crimes/)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+More aswesome stuff soon to be added :) 
+
+
 
 ### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
 ```markdown
-Syntax highlighted code block
 
 # Header 1
 ## Header 2
@@ -30,7 +30,6 @@ Syntax highlighted code block
 [Link](url) and ![Image](src)
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
 ### Jekyll Themes
 
