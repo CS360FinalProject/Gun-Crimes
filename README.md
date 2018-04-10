@@ -1,4 +1,8 @@
-## Welcome to GitHub Pages
+## Welcome to Our Project Website 
+
+Main contributors of this website are : Sahil Jain and Rawan Al Mobarak 
+
+This website was created using GitHub pages and the purpose of this website is to serve as a dashboard for the project visualization. 
 
 You can use the [editor on GitHub](https://github.com/CS360FinalProject/Gun-Crimes/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
