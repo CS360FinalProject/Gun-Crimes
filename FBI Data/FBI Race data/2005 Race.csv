@@ -1,0 +1,9 @@
+Race of victim,     Total,White,Black,Other,Unknown,Male,Female,Unknown
+White victims,"3,785","3,150",516,50,69,"3,356",360,69
+Black victims,"3,289",230,"2,984",7,68,"2,893",327,69
+Other race victims,201,44,42,108,7,172,22,7
+Unknown race,71,21,27,0,23,45,3,23
+Sex of victim,     Total,White,Black,Other,Unknown,Male,Female,Unknown
+Male victims,"5,271","2,262","2,779",111,119,"4,628",524,119
+Female victims,"2,004","1,162",763,54,25,"1,793",185,26
+Unknown sex,71,21,27,0,23,45,3,23
