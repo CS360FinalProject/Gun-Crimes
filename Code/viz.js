@@ -1,3 +1,7 @@
+<script src="http://d3js.org/d3.v4.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+
 var format = d3.format(",");
 
 // Set tooltips
