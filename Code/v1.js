@@ -26,13 +26,13 @@
   .append("g")
   .attr("transform","translate (" + margin.left + "," + margin.top + ")");
 
-//   d3.csv("gdpcomparison.csv", function (error, data) {
-//     if(error) throw error;
+  d3.csv("gdpcomparison.csv", function (error, data) {
+    if(error) throw error;
 
 
-d3.queue()
-    .defer(d3.csv, "gdpcomparison.csv")
-    .await(ready);
+// d3.queue()
+//     .defer(d3.csv, "gdpcomparison.csv")
+//     .await(ready);
 
     data.forEach(function (d) {
       d.homicides = +d.homicides;
