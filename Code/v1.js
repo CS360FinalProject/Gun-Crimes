@@ -30,10 +30,6 @@
     if(error) throw error;
 
 
-// d3.queue()
-//     .defer(d3.csv, "gdpcomparison.csv")
-//     .await(ready);
-
     data.forEach(function (d) {
       d.homicides = +d.homicides;
       d.ownership = +d.ownership;
@@ -116,5 +112,3 @@
       .text(function(d) {
         return d;
       });
-
-})
