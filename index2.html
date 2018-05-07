@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<body>
+      <body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar fixed-top navbar-toggleable-md navbar-light" id="mainNav">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarExample" aria-controls="navbarExample" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="container">
+            <a class="navbar-brand" href="#page-top">The "United States of Guns"</a>
+            <div class="collapse navbar-collapse" id="navbarExample">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#intro">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#data">Data</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#viz">Visualization</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#analysis">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="masthead">
+        <div class="header-content">
+            <div class="header-content-inner">
+                <h1 id="homeHeading" style="font-size:400%;">The "United States of Guns"</h1>
+                <hr>
+            </div>
+        </div>
+    </header>
+
+      <!--Data Viz libraries-->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
+     <script src = "https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
+      <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+               <h2>Graph of world firearm ownership and homicides</h2>
+
+               <section id="viz">
+         <div class="container">
+             <div class="row">
+                 <div class="col-lg-8 offset-lg-2 text-center">
+
+                     <hr class="primary">
+                     <div class="container">
+
+
+
+                           <script type="text/jscript" src="Everything\GdpBubbleChart.js"></script>
+
+                     </div>
+                     <br>
+                     <p>Hovering over the countries will prompt up a dialogue box with Country name and gun homicides in the countries</p>
+                 </div>
+             </div>
+         </div>
+     </section>
+
+
+</body>
+</body>
+</html>
