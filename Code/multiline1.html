@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.axis--x path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+</style>
+<svg width="960" height="900"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script> 
+  
+  let svg = d3.select("svg"),
+    margin = {top: 20, right: 80, bottom: 30, left: 50},
+    width = svg.attr("width") - margin.left - margin.right,
+    height = svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  let parseTime = d3.timeParse("%Y");
+
+  let x = d3.scaleTime().range([0, width]),
+      y = d3.scaleLinear().range([height, 0]),
+      z = d3.scaleOrdinal(d3.schemeCategory10);
+
+  let xAxis = d3.axisBottom(x);
+  let yAxis = d3.axisLeft(y);
+
+  let line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.Year); })
+    .y(function(d) { return y(d.Shootings); });
+
+
+  let xGroup = g.append("g")
+    .attr("transform","translate(0," + height + ")");
+  let yGroup = g.append("g")
+    .attr("transform","translate("+ width+",0)");
+  
+
+  d3.tsv("data1.tsv", type, function(error, data) {
+    if (error) throw error;
+
+    let states = data.columns.slice(1).map(function(id) {
+      return {
+        id: id,
+        values: data.map(function(d) {
+          return {Year: d.Year, Shootings: d[id]};
+        })
+      };
+  });
+
+
+  x.domain(d3.extent(data, function(d) { return d.Year; }));
+  y.domain([
+    d3.min(states, function(c) { return d3.min(c.values, function(d) { return d.Shootings; }); }),
+    d3.max(states, function(c) { return d3.max(c.values, function(d) { return d.Shootings; }); })
+  ]);
+  z.domain(states.map(function(c) { return c.id; }));
+
+
+  g.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+  g.append("g")
+    .attr("class", "axis axis--y")
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 7)
+    .attr("dy", "0.71em")
+    .attr("fill", "#000")
+    .text("Shootings, ºF");
+
+  let city = g.selectAll(".city")
+    .data(states)
+    .enter().append("g")
+    .attr("class", "city")
+    .attr("id", function(d) { return d.id.substring(0, 3).toUpperCase()});
+
+  city.append("path")
+    .attr("class", "line")
+    .attr("id", function(d) { return d.id.substring(0, 3).toUpperCase()})
+    .attr("d", function(d) { return line(d.values); })
+    .style("stroke", function(d) { return z(d.id); });
+
+  city.append("text")
+    .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+    .attr("transform", function(d) { return "translate(" + x(d.value.Year) + "," + y(d.value.Shootings) + ")"; })
+    .attr("x", 7)
+    .attr("dy", "0.35em")
+    .style("font", "10px sans-serif")
+    .text(function(d) { return d.id; });
+
+
+
+  let citynames = d3.selectAll(".city");
+    citynames.on("click", function (d) {
+    let on = d3.select(this).classed("on");
+
+  if(on) {
+    citynames.select(".line")
+      .filter(function(outer) {return d.id == outer.id;})
+      .transition()
+      .style("opacity",1)
+      .on("end", function (outer) {
+      d3.select(this).style("visibility","visible")
+    });
+  }
+  else { 
+    citynames.select(".line")
+      .filter(function (outer) {return d.id == outer.id; })
+      .transition()
+      .style("opacity",0)
+      .on("end", function(d) {d3.select(this).style("visibility","hidden")});
+  }
+    d3.select(this).classed("on",!on);
+  })
+
+  citynames.on("mouseover" ,function (d) {
+    let on = d3.select(this).classed("on");
+    let id = d.id.substring(0,3).toUpperCase();
+      d3.selectAll(".city").selectAll(".line")
+      .filter(function (d) {return id != d.id.substring(0,3).toUpperCase();})
+      .transition().style("stroke","#E4E6E6");
+  })
+
+  citynames.on("mouseout", function (d) {
+    let on = d3.select(this).classed("on");
+    let id = d.id.substring(0,3).toUpperCase();
+    d3.selectAll(".city")
+    .selectAll("path")
+    .filter(function(d) {return id != d.id.substring(0,3).toUpperCase();})
+    .transition()
+    .style("stroke", function (d) {return z(d.id);});
+  });
+  });
+
+
+  function type(d, _, columns) {
+    d.Year = parseTime(d.Year);
+    for (let i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
+    return d;
+  }
+
+</script>
