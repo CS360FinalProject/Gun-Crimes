@@ -1,76 +1,92 @@
 <!DOCTYPE html>
 <html>
-<body>
-      <body id="page-top">
+<head>
+  <title> Gun Deaths </title>
+  <meta charset="utf-8"/>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity = "sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin = "anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  <style type="text/css">
+  button {
+    cursor: pointer;
+  }
+  th {
+    background: red;
+    color: white;
+    font-weight: bold;
+    cursor: s-resize;
+  }
+  td,th {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
 
-    <!-- Navigation -->
-    <nav class="navbar fixed-top navbar-toggleable-md navbar-light" id="mainNav">
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarExample" aria-controls="navbarExample" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="container">
-            <a class="navbar-brand" href="#page-top">The "United States of Guns"</a>
-            <div class="collapse navbar-collapse" id="navbarExample">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#intro">Introduction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#data">Data</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#viz">Visualization</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#analysis">Analysis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
-                    </li>
-                </ul>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  #detail{
+    margin: 0;
+  }
+  #detail{
+    font-size:13px;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+  .bar:hover{
+    fill: OrangeRed;
+  }
+  </style>
+</head>
+<body style="background-color:white;">
+  <center>
+    <h1> GUN DEATHS </h1>
 
-    <header class="masthead">
-        <div class="header-content">
-            <div class="header-content-inner">
-                <h1 id="homeHeading" style="font-size:400%;">The "United States of Guns"</h1>
-                <hr>
-            </div>
-        </div>
-    </header>
+  </center>
 
-      <!--Data Viz libraries-->
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
-     <script src = "https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
-      <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <center>
+  <h2>Gun problems across the world! What the fuss is all about ?</h2>
+</center>
+  <p> In today's world a lot has been going on in mainstream media
+    regarding the use of the guns. Some people are in favor of Guns
+    and some are not so much. To be able to see if both sides of the
+    arguments are correct, we decided to look at the data and make
+    our opinions on the basis of data itself. Avoiding political
+    correctnes at all costs, the main purpose of this website/project
+    is tell a story related with gun deaths using visualizations and data </p>
+    <center>
+    <h3> Data </h3>
+  </center>
+    <p> Before we dwell into visualizations and start making assumptions we
+      will talk little bit about the data. The data for this particular project was
+      gathered from various resources, primarily from : FBI, the guardian, Mother Jones and
+      Kaggle. Data is divided into three categories. First one is the world data, second
+      is about shooting in US from 2004-2016 and third is about Mass shootings the US from
+      past 50 years <p>
 
-               <h2>Graph of world firearm ownership and homicides</h2>
+        <center>
+    <h3> Story </h3>
+  </center>
+    <p> Story for this project is divided into three different sub-categories just
+      like the data. Our main focus is mainly on the US, so our story will go something
+      along these lines: </p>
+      <p> 1 : Looking at the world data and comparing each country with each other,
+        then comparing top countries on the basis of gun ownership and in the end
+        comparing top countries on the basis of GDP and gun ownership to see where
+        exactly the US stands.
+      <p> 2 : The second part of our project is about looking at the general shooting
+        statitics in the US and see how the US has done over past few years (2004-2016).
+        We looked at the data from each state and compared shooting statitics of each and
+        every state individually as well.
+        <p> 3 : Third part of our project is about mass shootings that have took place in
+          the US over past 46 years or so (1982-2018). Comparing data on the basis of place
+          where mass shooting took place, guns used during those shootings and number of people
+          got killed during that shooting </p>
 
-               <section id="viz">
-         <div class="container">
-             <div class="row">
-                 <div class="col-lg-8 offset-lg-2 text-center">
+          <center>
+          <h4> Visualizations </h4>
+        </center>
 
-                     <hr class="primary">
-                     <div class="container">
+        <p> Up next are all the visualizations and anlysis related with this data and
+          opinions related to the trends over the years. Visualizations also allows user
+          interaction making it easier for anyone to hover over and communicate with the data</p>
 
-
-                           <script type = "text/javascript"src="Everything\viz.js"></script>
-                          
-
-                     </div>
-                     <br>
-                     <p>Hovering over the countries will prompt up a dialogue box with Country name and gun homicides in the countries</p>
-                 </div>
-             </div>
-         </div>
-     </section>
-
-
-</body>
-</body>
-</html>
+          <center>
+            <h5> Looking at the trend in the world </h5>
+          </center>
