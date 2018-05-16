@@ -5,94 +5,17 @@
   <meta charset="utf-8"/>
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="https://d3js.org/topojson.v2.min.js"></script>
-  <script src="http://d3js.org/queue.v1.min.js"></script>
-  <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="d3-tip.js"></script>
   <style type="text/css">
 
-  .names {
-  fill: none;
-  stroke: #fff;
-  stroke-linejoin: round;
-  }
 
-    /* Tooltip CSS */
-    .d3-tip {
-    line-height: 1.5;
-    font-weight: 400;
-    font-family:"avenir next", Arial, sans-serif;
-    padding: 6px;
-    background: rgba(0, 0, 0, 0.6);
-    color: #FFA500;
-    border-radius: 1px;
-    pointer-events: none;
-    }
-
-    /* Creates a small triangle extender for the tooltip */
-    .d3-tip:after {
-      box-sizing: border-box;
-      display: inline;
-      font-size: 8px;
-      width: 100%;
-      line-height: 1.5;
-      color: rgba(0, 0, 0, 0.6);
-      position: absolute;
-      pointer-events: none;
-
-    }
-
-    /* Northward tooltips */
-    .d3-tip.n:after {
-      content: "\25BC";
-      margin: -1px 0 0 0;
-      top: 100%;
-      left: 0;
-      text-align: center;
-    }
-
-    /* Eastward tooltips */
-    .d3-tip.e:after {
-      content: "\25C0";
-      margin: -4px 0 0 0;
-      top: 50%;
-      left: -8px;
-    }
-
-    /* Southward tooltips */
-    .d3-tip.s:after {
-      content: "\25B2";
-      margin: 0 0 1px 0;
-      top: -8px;
-      left: 0;
-      text-align: center;
-    }
-
-    /* Westward tooltips */
-    .d3-tip.w:after {
-      content: "\25B6";
-      margin: -4px 0 0 -1px;
-      top: 50%;
-      left: 100%;
-    }
-
-/*    text{
-      pointer-events:none;
-    }*/
-
-    .details{
-      color:white;
-    }
-
-  path:hover {
-    fill-opacity: .7;
-  }
-    /* No style rules here yet */
     div.tooltip {
       position: absolute;
       text-align: center;
       padding: 5px;
       font: 12px sans-serif;
+      background: lightsteelblue;
       border: 0px;
       border-radius: 8px;
       pointer-events: none;
@@ -122,16 +45,6 @@
 
   .dot {
     stroke: black;
-  }
-  div.tooltip {
-    position: absolute;
-    text-align: center;
-    padding: 5px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
   }
 
   button {
@@ -216,111 +129,94 @@
           interaction making it easier for anyone to hover over and communicate with the data</p>
 
           <center>
-          <h2> PART 1 : World Shooting Statistics </h2>
+          <h2> PART 1 : World Shooting Statistic </h2>
         </center>
 
 
             <p> Below is the graph for all the countries in the world , hovering over them will
             give you all the necessary information related with the country.
-            The very first graph is the world map with all the countries in world are shown
-            on the map,hovering over a specific country will give you all the necessary information related
+            The very first graph is a bubble chart with all the countries in world are shown
+            on the chart,hovering over a specific bubble will give you all the necessary information related
               the country. However some countries have no data available, so they will having value
             undefined in case of gun homicides.</p>
 
             <center>
-            <h2> World Map of Shooting Statistics </h2>
+            <h2> Bubble chart of Countries </h2>
           </center>
           <center>
+            <svg width="960" height="960" font-family="sans-serif" font-size="10" text-anchor="middle"></svg>
             <script>
 
+            var svg = d3.select("svg"),
+                width = +svg.attr("width"),
+                height = +svg.attr("height");
 
-            var format = d3.format(",");
+              // Define the div for the tooltip
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
 
-            // Set tooltips
-            var tip = d3.tip()
-                        .attr('class', 'd3-tip')
-                        .offset([-10, 0])
-                        .html(function(d) {
-                          return "<strong>Country: </strong><span class='details'>" + d.properties.name + "<br></span>" + "<strong>Gun Homicide : </strong><span class='details'>" + format(d.homicide) +"</span>";
-                        })
 
-            var margin = {top: 0, right: 0, bottom: 0, left: 0},
-                        width_1 = 1000 - margin.left - margin.right,
-                        height_1 = 600 - margin.top - margin.bottom;
 
-                        var color = d3.scaleOrdinal(d3.schemeCategory10);
-            var path = d3.geoPath();
+            var pack = d3.pack()
+                .size([width-150, height])
+                .padding(1.5);
 
-            var chart1 = d3.select("body")
-                        .append("svg")
-                        .attr("width", width_1)
-                        .attr("height", height_1)
-                        .append('g')
-                        .attr('class', 'map');
+            d3.csv("Guns.csv", function(d) {
+            d.value = +d["homicide"];
+            d.value2 = +d["Ownership"];
+            d.country = d["country"]
 
-            var projection = d3.geoMercator()
-                               .scale(120)
-                              .translate( [width_1 / 2, height_1 / 1.5]);
+             	return d;
+            }, function(error, data) {
+              if (error) throw error;
 
-            var path = d3.geoPath().projection(projection);
 
-            chart1.call(tip);
 
-            queue()
-                .defer(d3.json, "world-countries.json")
-                .defer(d3.tsv, "Guns.tsv")
-                .await(ready);
+              var color = d3.scaleOrdinal(d3.schemeCategory10)
+              .domain(data.map(function(d){ return d.homicide;}))
 
-            function ready(error, data, homicide) {
-              var homicideById = {};
 
-              homicide.forEach(function(d) {
-                // console.log(d.country);
-              //  d.homicide = +d.homicide;
-                homicideById[d.country] = +d.homicide;
-               });
-               console.log(homicideById)
-              data.features.forEach(function(d) {
-                // console.log(d.country);
-                 d.homicide = homicideById[d.properties.name];
-               });
+              var root = d3.hierarchy({children: data})
+                  .sum(function(d) { return d.value; })
 
-              chart1.append("g")
-                  .attr("class", "countries")
-                .selectAll("path")
-                  .data(data.features)
-                .enter().append("path")
-                  .attr("d", path)
-                  .style("fill", function(d) { return color(homicideById[d.properties.name]); })
-                  .style('stroke', 'white')
-                  .style('stroke-width', 1.5)
-                  .style("opacity",0.8)
-                  // tooltips
-                    .style("stroke","white")
-                    .style('stroke-width', 0.3)
-                    .on('mouseover',function(d){
-                      tip.show(d);
+              var chart1 = svg.selectAll(".node")
+                .data(pack(root).leaves())
+                .enter().append("g")
+                  .attr("class", "node")
+                  .attr("transform", function(d) { return "translate( " + d.x + "," + d.y + ")"; });
 
-                      d3.select(this)
-                        .style("opacity", 1)
-                        .style("stroke","white")
-                        .style("stroke-width",3);
-                    })
-                    .on('mouseout', function(d){
-                      tip.hide(d);
 
-                      d3.select(this)
-                        .style("opacity", 0.8)
-                        .style("stroke","white")
-                        .style("stroke-width",0.3);
-                    });
+              chart1.append("circle")
+                  .attr("id", function(d) { return d.id; })
+                  .attr("r", function(d) { return d.r; })
+                  .style("fill", function(d) { return color(d.data.country); })
+                  .on("mouseover", function(d) {
+                div.transition()
+                  .duration(200)
+                  .style("opacity", .9);
 
-              chart1.append("path")
-                  .datum(topojson.mesh(data.features, function(a, b) { return a.properties.name !== b.properties.name; }))
-                   // .datum(topojson.mesh(data.features, function(a, b) { return a !== b; }))
-                  .attr("class", "names")
-                  .attr("d", path);
-            }
+                  var duration = 300;
+              data.forEach(function(d, i) {
+                console.log(data);
+                chart1.transition().duration(duration).delay(i * duration)
+                    .attr("r", d.value2);
+            });
+
+
+                div.html("Country : " + d.data.country + " <br/> Gun homicide : "+ d.data.value + "<br/> Gun owners :" + d.data.value2 )
+                  .style("left", (d3.event.pageX) + "px")
+                  .style("top", (d3.event.pageY - 28) + "px");
+              })
+                .on("mouseout", function(d) {
+                div.transition()
+                  .duration(500)
+                  .style("opacity", 0);
+              });
+
+            });
+
+
             </script>
           </center>
 
@@ -431,6 +327,8 @@
                       .attr("dy", "1em")
                       .style("text-anchor", "middle")
                       .text("Gun homicides");
+
+
           });
 
           </script>
@@ -538,7 +436,7 @@
       every state. Second visualization shows how many shootings in general took place in US in each year to show the
       ongoing trend related to shooting in the US.
         <center>
-      <h3> Looking at the states over past 14 years, (2003 - 2016) </h3>
+      <h2> Looking at the states over past 14 years, (2003 - 2016) </h2>
     </center>
       <p> Hovering over the below bar chart will give some information realted to the shootings that took place in
         the each state of US over 14 years time (2003-2016) </p>
@@ -641,7 +539,7 @@
     <div class="span6" id="body"></div>
     <div class="span2">
         <center>
-      <h3> Lets look at the trend over past 14 years </h3>
+      <h2> Lets look at the trend over past 14 years </h2>
     </center>
       <p> The line chart below shows how many shootings took place in each and every year from
       2003-2016, hover over the line chart to see exact number of shootings in each year. Surprisngly
@@ -776,24 +674,18 @@ the number was already on the increase since year 2014, with 2015 also having 13
       by far the most important analysis of this topic. Mass Shootings.
     </center>
 
-    <center>
-      <p> The places change, the numbers change, but the choice of weapon remains the same.
-        In the United States, people who want to kill a lot of other people most often do it with guns.</p>
-      </center>
-
       <center>
         <p> Public mass shootings account for a tiny fraction of the country’s gun deaths, but they are
-          uniquely terrifying because they occur without warning in the most mundane places.
+          seemingly terrifying because they occur without warning in the most obnoxious places.
           Most of the victims are chosen not for what they have done but simply for where they happen to be.</p>
 
-          <p>There is no universally accepted definition of a public mass shooting, and this piece defines
-            it narrowly. It looks at the 151 shootings in which four or more people were killed by a lone
-            shooter (two shooters in a few cases). It does not include shootings tied to gang disputes or
-            robberies that went awry, and it does not include shootings that took place exclusively in private
-             homes. A broader definition would yield much higher numbers.</p>
+          <p>Our next part of the analysis will talk about mass shootings that have took place in different parts
+          of United states. From schootings that took place in schools to schootings that took place in clubs. Our data
+        does not include information and data reltated to gang wars and people got killed in gang shootings. This piece
+      of project here talks about all fatalities from mass shootings, guns used, and places where most of these mass shootings took place.</p>
       </center>
       <center>
-      <h3> Looking Fatalities over year (1982-2018) in mass shootings </h3>
+      <h2> Fatalities over years (1982-2018) in mass shootings </h2>
     </center>
 
     </div>
@@ -809,9 +701,8 @@ the number was already on the increase since year 2014, with 2015 also having 13
       even though the number is quite small and there have been years in between when there we no mass
     shootings that took place in US, but in recent years we can clearly see that number has been on the rise. For
   instance if we look at year 2017 there were a record number of fatalities with 117 total number of people killed. The people who were killed came
-  from nearly every imaginable race, religion and socioeconomic background. Their ages range from the unborn to the
-  elderly; 176 were children and teenagers. In addition, thousands of survivors were left with devastating injuries,
-  shattered families and psychological scars.</p>
+  from nearly every imaginable background. Their ages range from the unborn to the elderly. In addition, thousands of survivors were left with
+  devastating injuries.</p>
 
     </div>
     <div class="span6" id="area6"></div>
@@ -938,28 +829,27 @@ the number was already on the increase since year 2014, with 2015 also having 13
               <div class="span6" id="body"></div>
               <div class="span2">
                 <center>
-                <h3> Guns used and Shooters </h3>
+                <h2> Guns used and Shooters </h2>
               </center>
               <center>
                 <p> Shooters often carried more than one weapon; one was found with 24.
-                  At least 167 of mass shooters’ weapons were obtained legally and 50 were obtained illegally</p>
+                  Most of the mass shooters’ weapons were obtained legally and some were obtained illegally</p>
                 </center>
                 <center>
-                <h3> 154 Shooters </h3>
+                <h2> 154 Shooters </h2>
               </center>
               Some of these mass shooters were known to have violent tendencies or criminal pasts. Others seemed
               largely fine until they attacked. All but 3 were male. The vast majority were between the ages of 20 and 49.
               More than half — 88 of them — died at or near the scene of the shooting, often by killing themselves.
               <center>
-                <h3> Semiautomatic rifles </h3>
+                <h2> Semiautomatic rifles </h2>
               </center>
                 Semiautomatic rifles have been used in some of the country’s deadliest shootings, such as those in Newtown, Orlando,
                 San Bernardino and Las Vegas. The AR-15, a lightweight, customizable version of the military’s M16, soared in
-                popularity after a 10-year federal ban on assault weapons expired in 2004. Some of the Las Vegas shooter’s guns had been fitted
-                with legal devices called “bump-fire stocks,” which allow semiautomatic rifles to fire as quickly as automatic ones.
+                popularity after a 10-year federal ban on assault weapons expired in 2004.
 
                 <center>
-                  <h3> Semiautomatic handguns </h3>
+                  <h2> Semiautomatic handguns </h2>
                 </center>
                 The country’s most popular type of firearm, 9mm semiautomatic handguns, are used by many law enforcement officers. They are generally
                 light and inexpensive, easy to conceal and control, and they fire as quickly as a person can pull the trigger. The gunman who killed
@@ -1071,7 +961,7 @@ the number was already on the increase since year 2014, with 2015 also having 13
 <div class="span6" id="body"></div>
 <div class="span2">
     <center>
-      <h3> 34 States and Districts </h3>
+      <h2> 34 States and Districts </h2>
     </center>
   <p> 34 states and the District Shootings in schools and houses of worship tend to stick in our minds, but they make up a relatively
     small portion of mass shootings. More common are those in offices and retail establishments such as restaurants and stores. California
@@ -1199,7 +1089,7 @@ the number was already on the increase since year 2014, with 2015 also having 13
 <div class="span6" id="body"></div>
 <div class="span2">
     <center>
-      <h3> Different venues of mass shootings </h3>
+      <h2> Different venues of mass shootings </h2>
     </center>
   <p> Now that we have already looked at how many mass shootings have took place in the US since year 1982
   in different states, now we will look at different venues where shootings took place in the US.</p>
@@ -1211,7 +1101,7 @@ the number was already on the increase since year 2014, with 2015 also having 13
   <p> (5) Shootings at other places (concerts,clubs,restaurants) </p>
 
   <center>
-    <h3> Shootings in schools </h3>
+    <h2> Shootings in schools </h2>
   </center>
 
 </div>
@@ -1323,7 +1213,7 @@ the number was already on the increase since year 2014, with 2015 also having 13
               div.transition()
                    .duration(200)
                     .style("opacity", .9);
-                      div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br> Year : " + d.Year + "<br> Summary: </strong><span class='details'> " + d.Summary + "</span>")
+                      div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary: " + d.Summary)
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
 
@@ -1343,7 +1233,7 @@ the number was already on the increase since year 2014, with 2015 also having 13
 <div class="span6" id="body"></div>
 <div class="span2">
 <center>
-<h3> Shootings at Work Places </h3>
+<h2> Shootings at Work Places </h2>
 </center>
 
 </div>
@@ -1434,7 +1324,7 @@ chart10.selectAll("path")
         div.transition()
              .duration(200)
               .style("opacity", .9);
-              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br> Year : " + d.Year + "<br> Summary: </strong><span class='details'> " + d.Summary + "</span>")
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
               .style("left", (d3.event.pageX) + "px")
               .style("top", (d3.event.pageY - 28) + "px");
 
@@ -1459,7 +1349,7 @@ chart10.selectAll("path")
 <div class="span6" id="body"></div>
 <div class="span2">
 <center>
-<h3> Shootings at Religious places </h3>
+<h2> Shootings at Religious places </h2>
 </center>
 
 </div>
@@ -1550,7 +1440,7 @@ chart11.selectAll("path")
         div.transition()
              .duration(200)
               .style("opacity", .9);
-              div.html("State : " + d.State + "<br/> City : " + d.City + "<br/> Victims : " + d.Victims + "<br> Year : " + d.Year + "<br> Summary: </strong><span class='details'> " + d.Summary + "</span>")
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
               .style("left", (d3.event.pageX) + "px")
               .style("top", (d3.event.pageY - 28) + "px");
 
@@ -1574,7 +1464,7 @@ chart11.selectAll("path")
 <div class="span6" id="body"></div>
 <div class="span2">
 <center>
-<h3> Shootings in Miliraty bases </h3>
+<h2> Shootings in Miliraty bases </h2>
 </center>
 
 </div>
@@ -1665,7 +1555,7 @@ chart12.selectAll("path")
         div.transition()
              .duration(200)
               .style("opacity", .9);
-              div.html("State : " + d.State + "<br/> City : " + d.City + "<br/> Victims : " + d.Victims + "<br> Year : " + d.Year + "<br> Summary: </strong><span class='details'> " + d.Summary + "</span>")
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
               .style("left", (d3.event.pageX) + "px")
               .style("top", (d3.event.pageY - 28) + "px");
 
@@ -1690,7 +1580,7 @@ chart12.selectAll("path")
 <div class="span6" id="body"></div>
 <div class="span2">
 <center>
-<h3> Shootings at other places (concerts,clubs,restaurants) </h3>
+<h2> Shootings at other places (concerts,clubs,restaurants) </h2>
 </center>
 
 </div>
@@ -1780,7 +1670,7 @@ chart13.selectAll("path")
         div.transition()
              .duration(200)
               .style("opacity", .9);
-              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br> Year : " + d.Year + "<br> Summary: </strong><span class='details'> " + d.Summary + "</span>")
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
               .style("left", (d3.event.pageX) + "px")
               .style("top", (d3.event.pageY - 28) + "px");
 
@@ -1799,5 +1689,69 @@ chart13.selectAll("path")
 });
 });
 </script>
+<div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+<center>
+<h2> ANALYSIS </h2>
+</center>
+  <p> After looking at all of these visualizations we will now do an in detail analysis of the project
+    on the basis of data correctnes and not worrying too much about political correctness. Our analysis will
+    be divded into three parts all together. First part is about US vs Rest of the World, Second
+    part is about analyzing different US states on the basis of state shootings data and third analysis will
+    be done for mass shootings.
+  </p>
+
+  <center>
+  <h3> PART 1 - US VS REST OF THE WORLD </h3>
+</center>
+
+    As often portrayed by the main stream media, the US is apparently is that bad in terms of gun violence
+    as compared to other countries around the world. Even though it ranks second in terms of countries compared
+    in terms of GDP falling only behind brazil, the US is still doing way better than most of the coutries. We have to take
+    alot of things into account before stating our opinion as we are not necessarily 100% sure how legible and trustworthy
+    the data is for other coutnries of the world specially for third world countries. So in conlusion of this analysis
+    we will say that definately US is up there in the rankings with other coutnries in the world, But we also have to take
+    this thing into account that US is also the leader of the world in terms peace, innovation and freedom. So media's scrutiny
+    does makes more sense if you look through a different point of view.
+
+    <center>
+    <h3> PART 2 - COMPARING US STATES (2004-2016) </h3>
+  </center>
+
+    In this part of our project we compared all 50 US states together over past 13 years of data from year 2004 to year 2016. For first 9
+    years from year 2004-2013 we saw a downward treand as shown in line chart above. However right after year 2014 to year 2016, number of
+    shootings incidents sky rocketed and rose by 20% in span of 2 years.Surprisngly to our understanding it turned out that states with toughest gun laws have the most number of shootings in past
+    14 years. For instance California alone had close 27000 shootings incidents in past 13 years where as Texas which is a Pro-Gun
+    state had roughly 14000 shooting incidents that took place. However even though these states have complete different number of
+    shooting numbers as compraed with each other, we must take this thing into account that California is by far the most populous state
+    in the US and texas even though bigger in land but is still have still less population as compared with California. In conclusion, our current
+    analysis would be this that, these shooting incident numbers are still higher than expected. Each and every life is valuable and
+    people must be taught value of life every day. As per our own personal opinions looking at the trend lines in line chart and looking at individual
+    shootings Statistics in each state our opinion is this that stronger/stricter guns laws are necessary in every US state at this point of time. We're
+    not againts guns neither against our 2nd Amendment, As per our data visualizations we can conclude that stronger guns laws must be implemented.
+
+    <center>
+    <h3> PART 3 - MASS SHOOTINGS (1982-2018)</h3>
+    </center>
+    Mass shootings are really very unique and terryfying at the same time. Before we make our analysis and conclusion to answer our question, first
+    we will clarify that mass shootigns are usually shootings in which 3 or more people get killed. They are terrifying because they happen at the most
+    mundane places without any warning. As per data and visualization we saw different places where mass shootings have took place in US, different Guns Used
+    and how many fatalities were there in each year of mass shootigs. Even though these numbers were relitively small, mass shootings are still a very big cause
+    of concern. We looked at the guns that were used in these shootings and noticed how Rifels and handguns were by far the most favorite form of assault
+    weapon used by the shooters. In our data we also gained an insight to the shooters mental health and it turned our roughly 60% of the shooters had mental
+    issues. In our conclusion and defence, data and visualizations gave us a solid eveidence that why we're in a dire need of stricter gun laws across the US.
+    Florida high school shootign is one prime example where shooter named Nicholas Cruz had mental issues and ended up killing 17 kids. Stephen Paddock, Las Vegas
+    shooter also had mental issues and roughly 58 people were killed and close to 550 people were injured. These shootings are sporadic but strict gun laws and
+    strict background check are possible solutions for these problems.
+
+    <hr></hr>
+
+    <center>
+      <h3>     </h3>
+    </center>
+</div>
+<div class="span6" id="area13"></div>
+</div>
     </body>
   </html>
