@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Gun Deaths </title>
+  <meta charset="utf-8"/>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/topojson.v2.min.js"></script>
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="d3-tip.js"></script>
+  <style type="text/css">
+
+
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 5px;
+      font: 12px sans-serif;
+      background: lightsteelblue;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+  .line {
+    fill: none;
+    stroke: red;
+    stroke-width: 2px;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+
+  .overlay {
+    fill: none;
+    pointer-events: all;
+  }
+
+  .focus circle {
+    fill: none;
+    stroke: black;
+  }
+
+  .bar { fill: red; }
+
+  .dot {
+    stroke: black;
+  }
+
+  button {
+    cursor: pointer;
+  }
+  th {
+    background: red;
+    color: black;
+    font-weight: bold;
+    cursor: s-resize;
+  }
+  td,th {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
+
+  #detail{
+    margin: 0;
+  }
+  #detail{
+    font-size:13px;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+  .bar:hover{
+    fill: OrangeRed;
+  }
+  </style>
+</head>
+
+<body style="background-color:white;">
+  <center>
+    <h1> GUN DEATHS </h1>
+
+  </center>
+
+  <center>
+  <h2>Gun problems across the world! What the fuss is all about ?</h2>
+</center>
+  <p> In today's world, a lot has been going on in mainstream media
+    regarding the use of the guns. Some people are in favor of Guns and some are not so much.
+    To be able to see if both sides of the arguments are correct, we decided to look at the data
+     and make our opinions on the basis of data itself. Avoiding political correctness at all costs,
+     the main purpose of this website/project is telling a story related to gun deaths using visualizations and data </p>
+    <center>
+    <h2> Data </h2>
+  </center>
+    <p>
+      Before we dwell into visualizations and start making assumptions we
+      will talk a little bit about the data. The data for this particular project was
+      gathered from various resources, primarily from: FBI, the Guardian, Mother Jones and
+      Kaggle. Data is divided into three categories. First one is the world data, second
+      is about shooting in the US from 2004-2016 and third is about Mass shootings the US from
+      past 50 years <p>
+
+        <center>
+    <h2> Story </h2>
+  </center>
+    <p>
+      The story for this project is divided into three different sub-categories just
+      like the data. Our main focus is mainly on the US, so our story will go something
+      along these lines:
+     </p>
+      <p>
+        1: Looking at the world data and comparing each country with each other,
+        then comparing top countries on the basis of gun ownership and in the end
+        comparing top countries on the basis of GDP and gun ownership to see where
+        exactly the US stands.
+      </p>
+      <p>
+        2: The second part of our project is about looking at the general shooting
+        statistics in the US and see how the US has done over past few years (2004-2016).
+        We looked at the data from each state and compared shooting statistics of each and
+        every state individually as well.
+      </p>
+        <p>
+          3: Third part of our project is about mass shootings that have taken place in
+          the US over past 46 years or so (1982-2018). Comparing data on the basis of place
+          where the mass shooting took place, guns used during those shootings and number of people
+          got killed during that shooting
+        </p>
+
+          <center>
+          <h2> Visualizations </h2>
+        </center>
+
+        <p>
+          Up next are all the visualizations and analysis related to this data and
+          opinions related to the trends over the years. Visualizations also allow a user
+          interaction making it easier for anyone to hover over and communicate with the data
+        </p>
+
+          <center>
+          <h2> PART 1 : World Shooting Statistic </h2>
+        </center>
+
+
+            <p>
+              Below is the graph for all the countries in the world, hovering over them will
+            give you all the necessary information related to the country.
+            The very first graph is a bubble chart with all the countries in the world are shown
+            on the chart, hovering over a specific bubble will give you all the necessary information related
+              the country. However some countries have no data available, so they will having value
+            undefined in case of gun homicides.
+            </p>
+
+            <center>
+            <h2> Bubble chart of Countries </h2>
+          </center>
+          <center>
+            <svg width="960" height="960" font-family="sans-serif" font-size="10" text-anchor="middle"></svg>
+            <script>
+
+            var svg = d3.select("svg"),
+                width = +svg.attr("width"),
+                height = +svg.attr("height");
+
+              // Define the div for the tooltip
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+
+
+            var pack = d3.pack()
+                .size([width-150, height])
+                .padding(1.5);
+
+            d3.csv("Guns.csv", function(d) {
+            d.value = +d["homicide"];
+            d.value2 = +d["Ownership"];
+            d.country = d["country"]
+
+             	return d;
+            }, function(error, data) {
+              if (error) throw error;
+
+
+
+              var color = d3.scaleOrdinal(d3.schemeCategory10)
+              .domain(data.map(function(d){ return d.homicide;}))
+
+
+              var root = d3.hierarchy({children: data})
+                  .sum(function(d) { return d.value; })
+
+              var chart1 = svg.selectAll(".node")
+                .data(pack(root).leaves())
+                .enter().append("g")
+                  .attr("class", "node")
+                  .attr("transform", function(d) { return "translate( " + d.x + "," + d.y + ")"; });
+
+
+              chart1.append("circle")
+                  .attr("id", function(d) { return d.id; })
+                  .attr("r", function(d) { return d.r; })
+                  .style("fill", function(d) { return color(d.data.country); })
+                  .on("mouseover", function(d) {
+                div.transition()
+                  .duration(200)
+                  .style("opacity", .9);
+
+                  var duration = 300;
+              data.forEach(function(d, i) {
+                console.log(data);
+                chart1.transition().duration(duration).delay(i * duration)
+                    .attr("r", d.value2);
+            });
+
+
+                div.html("Country : " + d.data.country + " <br/> Gun homicide : "+ d.data.value + "<br/> Gun owners :" + d.data.value2 )
+                  .style("left", (d3.event.pageX) + "px")
+                  .style("top", (d3.event.pageY - 28) + "px");
+              })
+                .on("mouseout", function(d) {
+                div.transition()
+                  .duration(500)
+                  .style("opacity", 0);
+              });
+
+            });
+
+
+            </script>
+          </center>
+
+          <div class="row">
+    <div class="span6" id="body"></div>
+    <div class="span2">
+      <center>
+      <h2> Comparing top GDP countries </h2>
+    </center>
+    The graph above is about all the countries in the world. Scatter plot chart below is about
+    top GDP's (industrialized countries in the world). Hovering over the circle will give you all of the
+    necessary information related to the country. Values on x-axis show Gun homicides in
+    these countries and value on y-axis shows guns owned in these countries. Countries compared here are the
+    US, Japan, UK, Italy, India, Brazil, Germany, and France.
+    </div>
+    <div class="span6" id="area2"></div>
+  </div>
+
+          <center>
+          <script type="text/javascript"></script>
+          <script>
+
+          var margin = {
+            top: 10,
+            right: 30,
+            bottom: 10,
+            left: 70,
+          },
+          width_2 = 900 - margin.left - margin.right;
+          height_2 = 750 - margin.top - margin.bottom;
+
+          var x = d3.scaleLinear()
+          .range([0,width_2]);
+
+          var y = d3.scaleLinear()
+          .range([height_2,0]);
+
+          var div = d3.select("body").append("div")
+          .attr("class","tooltip")
+          .style("opacity", 0);
+
+          var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+          var chart2 = d3.select("body").append("svg")
+          .attr("width", width_2 + margin.left + margin.right)
+          .attr("height", width_2 + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform","translate (" + margin.left + "," + margin.top + ")");
+
+          d3.csv("gdpcomparison.csv", function (error, data) {
+            if(error) throw error;
+
+            data.forEach(function (d) {
+              d.homicides = +d.homicides;
+              d.ownership = +d.ownership;
+            });
+
+            x.domain(d3.extent(data, function (d) {
+              return d.ownership;
+            })).nice();
+
+            y.domain(d3.extent(data, function (d) {
+              return d.homicides;
+            })).nice();
+
+            chart2.selectAll(".dot")
+            .data(data)
+            .enter().append("circle")
+            .attr("class","dot")
+            .attr("r", function(d) {
+              return Math.sqrt(parseInt(d.gdp)*0.00000000008);
+            })
+            .attr("cx", function (d) {
+              return x(d.ownership);
+            })
+            .attr("cy", function (d) {
+              return y(d.homicides);
+            })
+            .on("mouseover", function (d) {
+              div.transition()
+              .duration(200)
+              .style("opacity",.9);
+              div.html("Gun Homicides : " + d.homicides + "<br/> Country : " + d.country + "<br/> Guns Owned:"+ d.ownership + "<br/> GDP :" + d.GDP)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 10) + "px");
+            })
+            .on("mouseout", function (d) {
+              div.transition()
+              .duration(500)
+              .style("opacity", 0);
+            })
+            .style("fill", function (d) {
+              return color(d.country);
+            });
+
+            chart2.append("g")
+                .attr("transform", "translate(0," + height_2 + ")")
+                .call(d3.axisBottom(x));
+                chart2.append("text")
+                .attr("transform","translate(" + (width_2/2) + " ," +(height_2 + margin.bottom + 25) + ")")
+                .style("text-anchor", "middle")
+                .text("Gun ownership");
+            chart2.append("g")
+                .call(d3.axisLeft(y));
+                chart2.append("text")
+                      .attr("transform", "rotate(-90)")
+                      .attr("y", 0 - margin.left)
+                      .attr("x",0 - (height_2 / 2))
+                      .attr("dy", "1em")
+                      .style("text-anchor", "middle")
+                      .text("Gun homicides");
+
+
+          });
+
+          </script>
+        </center>
+
+          <div class="row">
+    <div class="span6" id="body"></div>
+    <div class="span2">
+      <center>
+      <h2> Comparing top Gun Owning countries </h2>
+    </center>
+    The Scatterplot chart below is about top gun owning countries in the world. Hovering over the circle will give you all
+    of necessary information related to the country. Values on x-axis show Gun homicides in these countries and value on
+     y-axis shows guns owned in these countries. A lot of information can be generated from these plots as for where exactly the
+      US stands in terms comparison to other countries in the World. Countries covered in this part are the US, Mexico, Brazil,
+       Venezuela, Columbia, India, South Africa, and the Philippines.
+    </div>
+    <div class="span6" id="area2"></div>
+  </div>
+          <script type="text/javascript"></script>
+          <script>
+
+            // adding svg's to the canvas
+          var chart3 = d3.select("body").append("svg")
+          .attr("width", width_2 + margin.left + margin.right)
+          .attr("height", width_2 + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform","translate (" + margin.left + "," + margin.top + ")");
+
+          // get the Data
+
+          d3.csv("homicide.csv", function (error, data) {
+            if(error) throw error;
+
+            data.forEach(function (d) {
+              d.homicide = +d.homicide;
+              d.ownership = +d.ownership;
+            });
+
+            x.domain(d3.extent(data, function (d) {
+              return d.ownership;
+            })).nice();
+
+            y.domain(d3.extent(data, function (d) {
+              return d.homicide;
+            })).nice();
+
+            chart3.selectAll(".dot")
+            .data(data)
+            .enter().append("circle")
+            .attr("class","dot")
+            .attr("r", function(d) {
+              return Math.sqrt(parseInt(d.homicide)*0.05);
+            })
+            .attr("cx", function (d) {
+              return x(d.ownership);
+            })
+            .attr("cy", function (d) {
+              return y(d.homicide);
+            })
+            .on("mouseover", function (d) {
+              div.transition()
+              .duration(200)
+              .style("opacity",.9);
+              div.html("Gun Homicides : " + d.homicide + "<br/> Country : " + d.country + "<br/> Guns Owned:"+ d.ownership)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 10) + "px");
+            })
+            .on("mouseout", function (d) {
+              div.transition()
+              .duration(500)
+              .style("opacity", 0);
+            })
+            .style("fill", function (d) {
+              return color(d.country);
+            });
+
+            chart3.append("g")
+                .attr("transform", "translate(0," + height_2 + ")")
+                .call(d3.axisBottom(x));
+                chart3.append("text")
+                .attr("transform","translate(" + (width_2/2) + " ," +(height_2 + margin.top + 25) + ")")
+                .style("text-anchor", "middle")
+                .text("Gun ownership");
+            chart3.append("g")
+                .call(d3.axisLeft(y));
+                chart3.append("text")
+                      .attr("transform", "rotate(-90)")
+                      .attr("y", 0 - margin.left)
+                      .attr("x",0 - (height_2 / 2))
+                      .attr("dy", "1em")
+                      .style("text-anchor", "middle")
+                      .text("Gun homicides");
+          });
+          </script>
+          <div class="row">
+    <div class="span6" id="body"></div>
+    <div class="span2">
+      <center>
+      <h2> PART 2 : Looking into the US </h2>
+    </center>
+    After looking at the whole world now, the comparison will start between different states of
+    the US. For this part, we will be looking at all the shootings that took place in the US since
+    the year 2003 to 2016. Data was collected from FBI. This part of the project will consist of 2 visualizations only,
+     First visualization is a bar graph showing all the shootings since 2003-2016 took place in each and every state.
+     The second visualization shows how many shootings, in general, took place in the US in each year to show the ongoing trend
+     related to shooting in the US.
+        <center>
+      <h2> Looking at the states over past 14 years, (2003 - 2016) </h2>
+    </center>
+      <p> Hovering over the below bar chart will give some information realted to the state </p>
+    </div>
+    <div class="span6" id="area3"></div>
+  </div>
+
+         <script type="text/javascript"></script>
+          <script>
+
+          var margin = {
+            top: 30,
+            right: 200,
+            bottom: 30,
+            left: 70,
+          },
+          width = 960 - margin.left - margin.right;
+          height = 600 - margin.top - margin.bottom;
+
+          var xAxis = d3.scaleBand()
+                     .range([0, width])
+                     .padding(0.1);
+
+           var yAxis = d3.scaleLinear()
+                     .range([height, 0]);
+
+          var chart4 = d3.select("body").append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+              .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+          // get the data
+          d3.csv("TotalStateShootings.csv", function(error, data) {
+            if (error) throw error;
+
+            // format the data
+            data.forEach(function(d) {
+              d.shootings = +d.shootings;
+            });
+
+            // Scale the range of the data in the domains
+            xAxis.domain(data.map(function(d) { return d.state; }));
+            yAxis.domain([0, d3.max(data, function(d) { return d.shootings; })]);
+
+            // append the rectangles for the bar chart
+            chart4.selectAll(".bar")
+                .data(data)
+              .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return xAxis(d.state); })
+                .attr("width", xAxis.bandwidth())
+                .attr("y", function(d) { return yAxis(d.shootings); })
+                .on("mouseover", function (d) {
+                  div.transition()
+                  .duration(200)
+                  .style("opacity",.9);
+                  div.html("State : " + d.state + "<br/> Shootings : " + d.shootings)
+                  .style("left", (d3.event.pageX) + "px")
+                  .style("top", (d3.event.pageY - 10) + "px");
+                })
+                .on("mouseout", function (d) {
+                  div.transition()
+                  .duration(500)
+                  .style("opacity", 0);
+                })
+                .attr("height", function(d) { return height - yAxis(d.shootings); });
+
+            // add the x Axis
+            chart4.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xAxis));
+
+            // add the y Axis
+            chart4.append("g")
+                .call(d3.axisLeft(yAxis));
+
+                chart4.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(xAxis));
+                    chart4.append("text")
+                    .attr("transform","translate(" + (width/2) + " ," +(height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("States");
+
+                    chart4.append("text")
+                          .attr("transform", "rotate(-90)")
+                          .attr("y", 0 - margin.left)
+                          .attr("x",0 - (height / 2))
+                          .attr("dy", "1em")
+                          .style("text-anchor", "middle")
+                          .text("Shootings");
+
+          });
+
+          </script>
+
+          <div class="row">
+    <div class="span6" id="body"></div>
+    <div class="span2">
+        <center>
+      <h2> Lets look at the trend over past 14 years </h2>
+    </center>
+      <p>
+        The line chart below shows how many shootings took place in each and every year from
+      2003-2016, hover over the line chart to see the exact number of shootings in each year.
+      Surprisingly this never went up in recent years. In the Year 2014 number shootings were 11825 whereas by year
+  2016 number of shootings rose up to 14892, a +20% in the year shootings in the US. However, we can see that
+the number was already on the increase since the year 2014, with 2015 also having 13252 shootings incidents.
+      </p>
+    </div>
+    <div class="span6" id="area5"></div>
+  </div>
+
+         <script type="text/javascript"></script>
+
+          <script>
+          var margin = {
+            top: 30,
+            right: 200,
+            bottom: 30,
+            left: 70
+          },
+              width = 960 - margin.left - margin.right;
+              height = 600 - margin.top - margin.bottom;
+              var parseTime = d3.timeParse("%Y");
+              var bisectDate = d3.bisector(function (d) {
+                return d.year;
+              }).left;
+
+              var a = d3.scaleTime()
+              .range([0,width]);
+
+               var b = d3.scaleLinear()
+              .range([height,0]);
+
+          var chart5 = d3.select("body").append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+              .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+          d3.csv("stateshootings.csv", function(error, data) {
+            if (error) throw error;
+
+            data.forEach(function(d) {
+                d.year = parseTime(d.year);
+                d.shootings = +d.shootings;
+            });
+
+            a.domain([d3.min(data, function(d) {
+              return d.year;
+            }),
+          d3.max(data, function(d) {
+            return d.year;
+          })]);
+            b.domain([0,d3.max(data,function(d) {
+              return d.shootings;
+            })]).nice();
+
+            var valueline = d3.line()
+                .x(function(d) {
+                  return a(d.year);
+                })
+                .y(function(d) {
+                  return b(d.shootings);
+                });
+
+
+            chart5.append("path")
+                .data([data])
+                .attr("class", "line")
+                .attr("d", valueline);
+
+                var focus = chart5.append("g")
+                .attr("class", "focus")
+                .style("display", "none");
+
+            focus.append("circle")
+                .attr("r", 4.5);
+
+                focus.append("text")
+                .attr("x", 9)
+                .attr("dy", ".35em");
+
+                chart5.append("rect")
+                .attr("class", "overlay")
+                .attr("width", width)
+                .attr("height", height)
+                .on("mouseover", function() { focus.style("display", null); })
+                .on("mouseout", function() { focus.style("display", "none"); })
+                .on("mousemove", mousemove);
+
+
+            chart5.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(a));
+                chart5.append("text")
+                .attr("transform","translate(" + (width/2) + " ," +(height + margin.top + 20) + ")")
+                .style("text-anchor", "middle")
+                .text("year");
+            chart5.append("g")
+                .call(d3.axisLeft(b));
+                chart5.append("text")
+                      .attr("transform", "rotate(-90)")
+                      .attr("y", 0 - margin.left)
+                      .attr("x",0 - (height / 2))
+                      .attr("dy", "1em")
+                      .style("text-anchor", "middle")
+                      .text("Number of shootings");
+
+
+                      function mousemove() {
+                var x0 = a.invert(d3.mouse(this)[0]),
+                    i = bisectDate(data, x0, 1),
+                    d0 = data[i - 1],
+                    d1 = data[i],
+                    d = x0 - d0.year > d1.year - x0 ? d1 : d0;
+                focus.attr("transform", "translate(" + a(d.year) + "," + b(d.shootings) + ")");
+                focus.select("text").text(function() { return d.shootings; });
+              }
+
+          });
+
+          </script>
+          <div class="row">
+    <div class="span6" id="body"></div>
+    <div class="span2">
+      <center>
+      <h2> PART 3 : Mass Shootings in US </h2>
+    </center>
+      <center>
+        So far we have already covered two parts of this whole analysis, which gives us an idea
+        about how the US stands in the world today and how different states in the US are have been trending
+        over past few years. Now, our focus will shift to the third part of this analysis and which is by far
+        the most important analysis of this topic. Mass Shootings.
+    </center>
+
+      <center>
+        <p> Public mass shootings account for a tiny fraction of the country’s gun deaths, but they are
+          seemingly terrifying because they occur without warning in the most obnoxious places.
+          Most of the victims are chosen not for what they have done but simply for where they happen to be.</p>
+
+          <p>
+            Our next part of the analysis will talk about mass shootings that have taken place in different parts
+          of United States. From shootings that took place in schools to shootings that took place in clubs. Our data does not
+          include information and data related to gang wars and people got killed in gang shootings. This piece of the project
+          here talks about all fatalities from mass shootings, guns used, and places where most of these mass shootings took place.
+          </p>
+      </center>
+      <center>
+      <h2> Fatalities over years (1982-2018) in mass shootings </h2>
+    </center>
+
+    </div>
+    <div class="span6" id="area6"></div>
+  </div>
+
+          <script type="text/javascript"></script>
+          <div class="row">
+    <div class="span6" id="body"></div>
+    <div class="span2">
+
+      <p>
+        The line chart below shows how many fatalities were there every time a mass shooting took places
+      even though the number is quite small and there have been years in between when there we no mass shootings that
+      took place in the US, but in recent years we can clearly see that number has been on the rise. For instance, if we
+      look at the year 2017 there were a record number of fatalities with 117 total number of people killed. The people who
+      were killed came from nearly every imaginable background. Their ages range from the unborn to the elderly. In addition,
+      thousands of survivors were left with devastating injuries
+      </p>
+
+    </div>
+    <div class="span6" id="area6"></div>
+  </div>
+
+          <script>
+
+          var margin = {
+            top: 30,
+            right: 200,
+            bottom: 30,
+            left: 70
+          },
+              width = 900 - margin.left - margin.right;
+              height = 600 - margin.top - margin.bottom;
+
+              var parseTime = d3.timeParse("%Y");
+              var bisectYear = d3.bisector(function (d) {
+                return d.Year;
+              }).left;
+
+              var axisX = d3.scaleTime()
+              .range([0,width]);
+
+               var axisY = d3.scaleLinear()
+              .range([height,0]);
+
+              var chart6 = d3.select("body").append("svg")
+                  .attr("width", width + margin.left + margin.right)
+                  .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                  .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+              d3.csv("fatal.csv", function(error, data) {
+                if (error) throw error;
+
+                data.forEach(function(d) {
+                    d.Year = parseTime(d.Year);
+                    d.Fatalities = +d.Fatalities;
+                });
+
+                axisX.domain([d3.min(data, function(d) {
+                  return d.Year;
+                }),
+              d3.max(data, function(d) {
+                return d.Year;
+              })]);
+                axisY.domain([0,d3.max(data,function(d) {
+                  return d.Fatalities;
+                })]).nice;
+
+                var valueline = d3.line()
+                    .x(function(d) {
+                      return axisX(d.Year);
+                    })
+                    .y(function(d) {
+                      return axisY(d.Fatalities);
+                    });
+
+
+                chart6.append("path")
+                    .data([data])
+                    .attr("class", "line")
+                    .attr("d", valueline);
+
+                    var focus = chart6.append("g")
+                    .attr("class", "focus")
+                    .style("display", "none");
+
+                focus.append("circle")
+                    .attr("r", 4.5);
+
+                    focus.append("text")
+                    .attr("x", 9)
+                    .attr("dy", ".35em");
+
+                    chart6.append("rect")
+                    .attr("class", "overlay")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .on("mouseover", function() { focus.style("display", null); })
+                    .on("mouseout", function() { focus.style("display", "none"); })
+                    .on("mousemove", mousemove);
+
+
+                chart6.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(axisX));
+                    chart6.append("text")
+                    .attr("transform","translate(" + (width/2) + " ," +(height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("Year");
+                chart6.append("g")
+                    .call(d3.axisLeft(axisY));
+                    chart6.append("text")
+                          .attr("transform", "rotate(-90)")
+                          .attr("y", 0 - margin.left)
+                          .attr("x",0 - (height / 2))
+                          .attr("dy", "1em")
+                          .style("text-anchor", "middle")
+                          .text("Number of Shootings");
+
+
+
+                          function mousemove() {
+                    var x0 = axisX.invert(d3.mouse(this)[0]),
+                        i = bisectYear(data, x0, 1),
+                        d0 = data[i - 1],
+                        d1 = data[i],
+                        d = x0 - d0.Year > d1.Year - x0 ? d1 : d0;
+                    focus.attr("transform", "translate(" + axisX(d.Year) + "," + axisY(d.Fatalities) + ")");
+                    focus.select("text").text(function() { return d.Fatalities; });
+                  }
+
+              });
+
+              </script>
+
+              <div class="span6" id="area7"></div>
+            </div>
+
+                    <script type="text/javascript"></script>
+                    <div class="row">
+              <div class="span6" id="body"></div>
+              <div class="span2">
+                <center>
+                <h2> Guns used and Shooters </h2>
+              </center>
+              <center>
+                <p> Shooters often carried more than one weapon; one was found with 24.
+                  Most of the mass shooters’ weapons were obtained legally and some were obtained illegally</p>
+                </center>
+                <center>
+                <h2> 154 Shooters </h2>
+              </center>
+              Some of these mass shooters were known to have violent tendencies or criminal pasts. Others seemed
+              largely fine until they attacked. All but 3 were male. The vast majority were between the ages of 20 and 49.
+              More than half — 88 of them — died at or near the scene of the shooting, often by killing themselves.
+              <center>
+                <h2> Semiautomatic rifles </h2>
+              </center>
+                Semiautomatic rifles have been used in some of the country’s deadliest shootings, such as those in Newtown, Orlando,
+                San Bernardino and Las Vegas. The AR-15, a lightweight, customizable version of the military’s M16, soared in
+                popularity after a 10-year federal ban on assault weapons expired in 2004.
+
+                <center>
+                  <h2> Semiautomatic handguns </h2>
+                </center>
+                The country’s most popular type of firearm, 9mm semiautomatic handguns, are used by many law enforcement officers. They are generally
+                light and inexpensive, easy to conceal and control, and they fire as quickly as a person can pull the trigger. The gunman who killed
+                32 students and teachers at Virginia Tech in 2007 used a 9mm semiautomatic Glock 19 (and a .22-caliber Walther P22, another popular caliber).
+                In this data, 9mm semiautomatic handguns show up more than any other weapon.
+              </div>
+              <div class="span6" id="area7"></div>
+            </div>
+
+
+         <script type="text/javascript"></script>
+
+
+              <script>
+
+              var margin = {
+                top: 30,
+                right: 200,
+                bottom: 30,
+                left: 70
+              },
+                  width = 900 - margin.left - margin.right,
+                  height = 600 - margin.top - margin.bottom;
+
+                  var div = d3.select("body").append("div")
+                  .attr("class","tooltip")
+                  .style("opacity", 0);
+
+
+        // append the svg object to the body of the page
+        // append a 'group' element to 'svg'
+        // moves the 'group' element to the top left margin
+        var chart7 = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        // get the data
+        d3.csv("MassShootingGuns.csv", function(error, data) {
+          if (error) throw error;
+
+          // format the data
+          data.forEach(function(d) {
+            d.total = +d.total;
+          });
+
+          // Scale the range of the data in the domains
+          xAxis.domain(data.map(function(d) { return d.Gun; }));
+          yAxis.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+          // append the rectangles for the bar chart
+          chart7.selectAll(".bar")
+              .data(data)
+            .enter().append("rect")
+              .attr("class", "bar")
+              .attr("x", function(d) { return xAxis(d.Gun); })
+              .attr("width", xAxis.bandwidth())
+              .attr("y", function(d) { return yAxis(d.total); })
+              .on("mouseover", function (d) {
+                div.transition()
+                .duration(200)
+                .style("opacity",.9);
+                div.html("Total : " + d.total + "<br/> Legally Obtained : " + d.legal)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 10) + "px");
+              })
+              .on("mouseout", function (d) {
+                div.transition()
+                .duration(500)
+                .style("opacity", 0);
+              })
+              .attr("height", function(d) { return height - yAxis(d.total); });
+
+          // add the x Axis
+          chart7.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(xAxis));
+
+          // add the y Axis
+          chart7.append("g")
+              .call(d3.axisLeft(yAxis));
+
+              chart7.append("g")
+                  .attr("transform", "translate(0," + height + ")")
+                  .call(d3.axisBottom(xAxis));
+                  chart7.append("text")
+                  .attr("transform","translate(" + (width/2) + " ," +(height + margin.top + 20) + ")")
+                  .style("text-anchor", "middle")
+                  .text("Guns");
+
+                  chart7.append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0 - margin.left)
+                        .attr("x",0 - (height / 2))
+                        .attr("dy", "1em")
+                        .style("text-anchor", "middle")
+                        .text("Total");
+
+        });
+</script>
+
+<div class="span6" id="area7"></div>
+</div>
+
+      <script type="text/javascript"></script>
+      <div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+    <center>
+      <h2> 34 States and Districts </h2>
+    </center>
+  <p> 34 states and the District Shootings in schools and houses of worship tend to remain in highlight for a long period of time, but they make up a relatively
+    small portion of mass shootings. More common are those in offices,restaurants and clubs. California
+    has had more mass shootings than any other state, with 17 and also with most number of fatalities 118 in mass shootings since year 1982.</p>
+
+</div>
+<div class="span6" id="area7"></div>
+</div>
+<script type="text/javascript">
+  //Width and height
+  var w = 1475;
+  var h = 575;
+  //Define map projection
+  var projection = d3.geoAlbersUsa()
+               .translate([w/2, h/2])
+               .scale([1000]);
+  //Define path generator
+  var path = d3.geoPath()
+           .projection(projection);
+
+  //Define quantize scale to sort data values into buckets of color
+  var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            //Colors taken from colorbrewer.js, included in the D3 download
+  //Number formatting for population values
+   //e.g. converts 123456 to "123,456"
+  //Create SVG element
+  var chart8 = d3.select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+        var div = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+  //Load in agriculture data
+  d3.csv("MassShootingsState.csv", function(data) {
+    //Set input domain for color scale
+
+    console.log(data)
+    //Load in GeoJSON data
+    d3.json("us-states.json", function(json) {
+      //Merge the ag. data and GeoJSON
+      //Loop through once for each ag. data value
+      for (var i = 0; i < data.length; i++) {
+
+        var dataState = data[i].state;				//Grab state name
+        var dataValue = parseFloat(data[i].fatalities);	//Grab data value, and convert from string to float
+
+        //Find the corresponding state inside the GeoJSON
+        for (var j = 0; j < json.features.length; j++) {
+
+          var jsonState = json.features[j].properties.name;
+
+          if (dataState == jsonState) {
+
+            //Copy the data value into the JSON
+            json.features[j].properties.fatalities = dataValue;
+
+            //Stop looking through the JSON
+            break;
+
+          }
+        }
+      }
+      //Bind data and create one path per GeoJSON feature
+      chart8.selectAll("path")
+         .data(json.features)
+         .enter()
+         .append("path")
+         .attr("d", path)
+         .style("fill", function(d) {
+            //Get data value
+            var value = d.properties.fatalities;
+
+            if (value) {
+              //If value exists…
+              return color(value);
+            } else {
+              //If value is undefined…
+              return "#ccc";
+            }
+         });
+
+         d3.csv("MassShootingsState.csv", function(data) {
+           chart8.selectAll("circle")
+           .data(data)
+           .enter()
+           .append("circle")
+           .attr("cx", function(d) {
+             return projection([d.lon, d.lat])[0];
+           })
+           .attr("cy", function (d) {
+             return projection([d.lon, d.lat])[1];
+           })
+           .attr("r", function(d) {
+             return Math.sqrt(d.fatalities)*3;
+           })
+           .style("fill","rgb(0,0,0)")
+           .style("opacity",0.85)
+           .on("mouseover", function(d) {
+              div.transition()
+                   .duration(200)
+                    .style("opacity", .9);
+                    div.html("State : " + d.state + "<br/> Fatalities : " + d.fatalities + "<br> Mass Shooting since 1982 : " + d.shootings)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+          })
+
+             // fade out tooltip on mouse out
+             .on("mouseout", function(d) {
+                 div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+             });
+
+         });
+});
+});
+</script>
+
+      <div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+    <center>
+      <h2> Different venues of mass shootings </h2>
+    </center>
+  <p> Now that we have already looked at how many mass shootings have took place in the US since year 1982
+  in different states, now we will look at different venues where shootings took place in the US.</p>
+  <p> These venues are divided into 5 differenr parts </p>
+  <p> (1) Shootings in schools </p>
+  <p> (2) Shootings in religious places </p>
+  <p> (3) Shootings at work places </p>
+  <p> (4) Shootings at Miliraty bases </p>
+  <p> (5) Shootings at other places (concerts,clubs,restaurants) </p>
+
+  <center>
+    <h2> Shootings in schools </h2>
+  </center>
+
+</div>
+<div class="span6" id="area8"></div>
+</div>
+ <script type="text/javascript">
+  //Width and height
+
+  var w1 = 1470;
+  var h1 = 550;
+  //Define map projection
+  var projection = d3.geoAlbersUsa()
+               .translate([w1/2, h1/2])
+             .scale([1050]);
+  //Define path generator
+  var path = d3.geoPath()
+           .projection(projection);
+
+  //Define quantize scale to sort data values into buckets of color
+  var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+
+            //Colors taken from colorbrewer.js, included in the D3 download
+  //Number formatting for population values
+   //e.g. converts 123456 to "123,456"
+  //Create SVG element
+  var chart9 = d3.select("body")
+        .append("svg")
+        .attr("width", w1)
+        .attr("height", h1);
+
+        var div = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+  //Load in agriculture data
+  d3.csv("SchoolShootings.csv", function(data) {
+    //Set input domain for color scale
+    color.domain([
+      d3.min(data, function(d) { return d.State; }),
+      d3.max(data, function(d) { return d.State; })
+    ]);
+    console.log(data)
+    //Load in GeoJSON data
+    d3.json("us-states.json", function(json) {
+      //Merge the ag. data and GeoJSON
+      //Loop through once for each ag. data value
+      for (var i = 0; i < data.length; i++) {
+
+        var dataState = data[i].State;				//Grab state name
+        var dataValue = parseFloat(data[i].Victims);	//Grab data value, and convert from string to float
+
+        //Find the corresponding state inside the GeoJSON
+        for (var j = 0; j < json.features.length; j++) {
+
+          var jsonState = json.features[j].properties.name;
+
+          if (dataState == jsonState) {
+
+            //Copy the data value into the JSON
+            json.features[j].properties.Victims = dataValue;
+
+            //Stop looking through the JSON
+            break;
+
+          }
+        }
+      }
+
+
+      //Bind data and create one path per GeoJSON feature
+      chart9.selectAll("path")
+         .data(json.features)
+         .enter()
+         .append("path")
+         .attr("d", path)
+         .style("fill", function(d) {
+            //Get data value
+            var value = d.properties.Victims;
+
+            if (value) {
+              //If value exists…
+              return color(value);
+            } else {
+              //If value is undefined…
+              return "#ccc";
+            }
+         });
+
+         d3.csv("SchoolShootings.csv", function(data) {
+           chart9.selectAll("circle")
+           .data(data)
+           .enter()
+           .append("circle")
+           .attr("cx", function(d) {
+             return projection([d.lon, d.lat])[0];
+           })
+           .attr("cy", function (d) {
+             return projection([d.lon, d.lat])[1];
+           })
+           .attr("r", function(d) {
+             return Math.sqrt(d.Victims)*2.5;
+           })
+           .style("fill","rgb(0,0,0)")
+           .style("opacity",0.85)
+
+           .on("mouseover", function(d) {
+              div.transition()
+                   .duration(200)
+                    .style("opacity", .9);
+                      div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary: " + d.Summary)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+
+          })
+
+             // fade out tooltip on mouse out
+             .on("mouseout", function(d) {
+                 div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+             });
+         });
+});
+});
+</script>
+<div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+<center>
+<h2> Shootings at Work Places </h2>
+</center>
+
+</div>
+<div class="span6" id="area9"></div>
+</div>
+
+<script>
+var chart10 = d3.select("body")
+  .append("svg")
+  .attr("width", w1)
+  .attr("height", h1);
+
+  var div = d3.select("body")
+.append("div")
+.attr("class", "tooltip")
+.style("opacity", 0);
+
+//Load in agriculture data
+d3.csv("WorkShootings.csv", function(data) {
+//Set input domain for color scale
+color.domain([
+d3.min(data, function(d) { return d.State; }),
+d3.max(data, function(d) { return d.State; })
+]);
+//Load in GeoJSON data
+d3.json("us-states.json", function(json) {
+//Merge the ag. data and GeoJSON
+//Loop through once for each ag. data value
+for (var i = 0; i < data.length; i++) {
+
+  var dataState = data[i].State;				//Grab state name
+  var dataValue = parseFloat(data[i].Victims);	//Grab data value, and convert from string to float
+
+  //Find the corresponding state inside the GeoJSON
+  for (var j = 0; j < json.features.length; j++) {
+
+    var jsonState = json.features[j].properties.name;
+
+    if (dataState == jsonState) {
+
+      //Copy the data value into the JSON
+      json.features[j].properties.Victims = dataValue;
+
+      //Stop looking through the JSON
+      break;
+
+    }
+  }
+}
+
+
+//Bind data and create one path per GeoJSON feature
+chart10.selectAll("path")
+   .data(json.features)
+   .enter()
+   .append("path")
+   .attr("d", path)
+   .style("fill", function(d) {
+      //Get data value
+      var value = d.properties.Victims;
+
+      if (value) {
+        //If value exists…
+        return color(value);
+      } else {
+        //If value is undefined…
+        return "#ccc";
+      }
+   });
+
+   d3.csv("WorkShootings.csv", function(data) {
+     chart10.selectAll("circle")
+     .data(data)
+     .enter()
+     .append("circle")
+     .attr("cx", function(d) {
+       return projection([d.lon, d.lat])[0];
+     })
+     .attr("cy", function (d) {
+       return projection([d.lon, d.lat])[1];
+     })
+     .attr("r", function(d) {
+       return Math.sqrt(d.Victims)*2.5;
+     })
+     .style("fill","rgb(0,0,0)")
+     .style("opacity",0.85)
+     .on("mouseover", function(d) {
+        div.transition()
+             .duration(200)
+              .style("opacity", .9);
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+
+
+
+    })
+
+       // fade out tooltip on mouse out
+       .on("mouseout", function(d) {
+           div.transition()
+              .duration(500)
+              .style("opacity", 0);
+       });
+
+   });
+});
+});
+
+</script>
+
+<div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+<center>
+<h2> Shootings at Religious places </h2>
+</center>
+
+</div>
+<div class="span6" id="area10"></div>
+</div>
+
+<script>
+var chart11 = d3.select("body")
+  .append("svg")
+  .attr("width", w1)
+  .attr("height", h1);
+
+  var div = d3.select("body")
+.append("div")
+.attr("class", "tooltip")
+.style("opacity", 0);
+
+//Load in agriculture data
+d3.csv("Religious.csv", function(data) {
+//Set input domain for color scale
+color.domain([
+d3.min(data, function(d) { return d.State; }),
+d3.max(data, function(d) { return d.State; })
+]);
+//Load in GeoJSON data
+d3.json("us-states.json", function(json) {
+//Merge the ag. data and GeoJSON
+//Loop through once for each ag. data value
+for (var i = 0; i < data.length; i++) {
+
+  var dataState = data[i].State;				//Grab state name
+  var dataValue = parseFloat(data[i].Victims);	//Grab data value, and convert from string to float
+
+  //Find the corresponding state inside the GeoJSON
+  for (var j = 0; j < json.features.length; j++) {
+
+    var jsonState = json.features[j].properties.name;
+
+    if (dataState == jsonState) {
+
+      //Copy the data value into the JSON
+      json.features[j].properties.Victims = dataValue;
+
+      //Stop looking through the JSON
+      break;
+
+    }
+  }
+}
+
+
+//Bind data and create one path per GeoJSON feature
+chart11.selectAll("path")
+   .data(json.features)
+   .enter()
+   .append("path")
+   .attr("d", path)
+   .style("fill", function(d) {
+      //Get data value
+      var value = d.properties.Victims;
+
+      if (value) {
+        //If value exists…
+        return color(value);
+      } else {
+        //If value is undefined…
+        return "#ccc";
+      }
+   });
+
+   d3.csv("Religious.csv", function(data) {
+     chart11.selectAll("circle")
+     .data(data)
+     .enter()
+     .append("circle")
+     .attr("cx", function(d) {
+       return projection([d.lon, d.lat])[0];
+     })
+     .attr("cy", function (d) {
+       return projection([d.lon, d.lat])[1];
+     })
+     .attr("r", function(d) {
+       return Math.sqrt(d.Victims)*2.5;
+     })
+     .style("fill","rgb(0,0,0)")
+     .style("opacity",0.85)
+     .on("mouseover", function(d) {
+        div.transition()
+             .duration(200)
+              .style("opacity", .9);
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+
+
+
+    })
+
+       // fade out tooltip on mouse out
+       .on("mouseout", function(d) {
+           div.transition()
+              .duration(500)
+              .style("opacity", 0);
+       });
+
+   });
+});
+});
+</script>
+
+<div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+<center>
+<h2> Shootings in Miliraty bases </h2>
+</center>
+
+</div>
+<div class="span6" id="area11"></div>
+</div>
+
+<script>
+var chart12 = d3.select("body")
+  .append("svg")
+  .attr("width", w1)
+  .attr("height", h1);
+
+  var div = d3.select("body")
+.append("div")
+.attr("class", "tooltip")
+.style("opacity", 0);
+
+//Load in agriculture data
+d3.csv("Military.csv", function(data) {
+//Set input domain for color scale
+color.domain([
+d3.min(data, function(d) { return d.State; }),
+d3.max(data, function(d) { return d.State; })
+]);
+//Load in GeoJSON data
+d3.json("us-states.json", function(json) {
+//Merge the ag. data and GeoJSON
+//Loop through once for each ag. data value
+for (var i = 0; i < data.length; i++) {
+
+  var dataState = data[i].State;				//Grab state name
+  var dataValue = parseFloat(data[i].Victims);	//Grab data value, and convert from string to float
+
+  //Find the corresponding state inside the GeoJSON
+  for (var j = 0; j < json.features.length; j++) {
+
+    var jsonState = json.features[j].properties.name;
+
+    if (dataState == jsonState) {
+
+      //Copy the data value into the JSON
+      json.features[j].properties.Victims = dataValue;
+
+      //Stop looking through the JSON
+      break;
+
+    }
+  }
+}
+
+
+//Bind data and create one path per GeoJSON feature
+chart12.selectAll("path")
+   .data(json.features)
+   .enter()
+   .append("path")
+   .attr("d", path)
+   .style("fill", function(d) {
+      //Get data value
+      var value = d.properties.Victims;
+
+      if (value) {
+        //If value exists…
+        return color(value);
+      } else {
+        //If value is undefined…
+        return "#ccc";
+      }
+   });
+
+   d3.csv("Military.csv", function(data) {
+     chart12.selectAll("circle")
+     .data(data)
+     .enter()
+     .append("circle")
+     .attr("cx", function(d) {
+       return projection([d.lon, d.lat])[0];
+     })
+     .attr("cy", function (d) {
+       return projection([d.lon, d.lat])[1];
+     })
+     .attr("r", function(d) {
+       return Math.sqrt(d.Victims)*2.5;
+     })
+     .style("fill","rgb(0,0,0)")
+     .style("opacity",0.85)
+     .on("mouseover", function(d) {
+        div.transition()
+             .duration(200)
+              .style("opacity", .9);
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+
+
+
+    })
+
+       // fade out tooltip on mouse out
+       .on("mouseout", function(d) {
+           div.transition()
+              .duration(500)
+              .style("opacity", 0);
+       });
+
+   });
+});
+});
+
+</script>
+
+<div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+<center>
+<h2> Shootings at other places (concerts,clubs,restaurants) </h2>
+</center>
+
+</div>
+<div class="span6" id="area12"></div>
+</div>
+<script>
+var chart13 = d3.select("body")
+  .append("svg")
+  .attr("width", w1)
+  .attr("height", h1);
+
+  var div = d3.select("body")
+.append("div")
+.attr("class", "tooltip")
+.style("opacity", 0);
+
+//Load in agriculture data
+d3.csv("Other.csv", function(data) {
+//Set input domain for color scale
+color.domain([
+d3.min(data, function(d) { return d.State; }),
+d3.max(data, function(d) { return d.State; })
+]);
+//Load in GeoJSON data
+d3.json("us-states.json", function(json) {
+//Merge the ag. data and GeoJSON
+//Loop through once for each ag. data value
+for (var i = 0; i < data.length; i++) {
+
+  var dataState = data[i].State;				//Grab state name
+  var dataValue = parseFloat(data[i].Victims);	//Grab data value, and convert from string to float
+
+  //Find the corresponding state inside the GeoJSON
+  for (var j = 0; j < json.features.length; j++) {
+
+    var jsonState = json.features[j].properties.name;
+
+    if (dataState == jsonState) {
+
+      //Copy the data value into the JSON
+      json.features[j].properties.Victims = dataValue;
+
+      //Stop looking through the JSON
+      break;
+
+    }
+  }
+}
+
+
+//Bind data and create one path per GeoJSON feature
+chart13.selectAll("path")
+   .data(json.features)
+   .enter()
+   .append("path")
+   .attr("d", path)
+   .style("fill", function(d) {
+      //Get data value
+      var value = d.properties.Victims;
+
+      if (value) {
+        //If value exists…
+        return color(value);
+      } else {
+        //If value is undefined…
+        return "#ccc";
+      }
+   });
+
+   d3.csv("Other.csv", function(data) {
+     chart13.selectAll("circle")
+     .data(data)
+     .enter()
+     .append("circle")
+     .attr("cx", function(d) {
+       return projection([d.lon, d.lat])[0];
+     })
+     .attr("cy", function (d) {
+       return projection([d.lon, d.lat])[1];
+     })
+     .attr("r", function(d) {
+       return Math.sqrt(d.Victims);
+     })
+     .style("fill","rgb(0,0,0)")
+     .style("opacity",0.85)
+     .on("mouseover", function(d) {
+        div.transition()
+             .duration(200)
+              .style("opacity", .9);
+              div.html("State : " + d.State + ", City : " + d.City + "<br/> Victims : " + d.Victims + "<br/> Year : " + d.Year + "<br/> Summary:" + d.Summary)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+
+
+
+    })
+
+       // fade out tooltip on mouse out
+       .on("mouseout", function(d) {
+           div.transition()
+              .duration(500)
+              .style("opacity", 0);
+       });
+
+   });
+});
+});
+</script>
+<div class="row">
+<div class="span6" id="body"></div>
+<div class="span2">
+<center>
+<h2> ANALYSIS </h2>
+</center>
+  <p> After looking at all of these visualizations we will now do an in detail analysis of the project
+    on the basis of data correctness and not worrying too much about political correctness. Our analysis will be divided into three parts all together.
+    The first part is about the US vs Rest of the World, Second part is about analyzing different US states on the basis of state shootings
+    data and third analysis will be done for mass shootings.
+  </p>
+
+  <center>
+  <h3> PART 1 - US VS REST OF THE WORLD </h3>
+</center>
+
+As often portrayed by the mainstream media, the US is apparently is that bad in terms of gun violence
+as compared to other countries around the world. Even though it ranks second in terms of countries compared in terms of
+GDP falling only behind Brazil, the US is still doing way better than most of the countries. We have to take a lot of things into
+account before stating our opinion as we are not necessarily 100% sure how legible and trustworthy the data is for other
+countries of the world, especially for third world countries. So in conclusion of this analysis, we will say that definitely,
+the US is up there in the rankings with other countries in the world, But we also have to take this thing into account that
+the US is also the leader of the world in terms peace, innovation, and freedom. So media's scrutiny does make more
+sense if you look through a different point of view.
+
+    <center>
+    <h3> PART 2 - COMPARING US STATES (2004-2016) </h3>
+  </center>
+
+  In this part of our project, we compared all 50 US states together over past 13 years of data from the year 2004 to the year 2016. For first 9
+  years from the year 2004-2013 we saw a downward trend as shown in line chart above. However, right after the year 2014 to the year 2016, the number
+  of shootings incidents skyrocketed and rose by 20% in the span of 2 years. Surprisingly to our understanding, it turned out that states
+  with toughest gun laws have the most number of shootings in past 13 years. For instance, California alone had close 27000 shootings incidents in past
+  13 years whereas Texas which is a Pro-Gun the state had roughly 14000 shooting incidents that took place. However even though these states have a
+  completely different number of shooting numbers as compared with each other, we must take this thing into account that California is by far the
+  most populous state in the US and Texas even though bigger inland but is still have still less population as compared with California. In conclusion,
+  our current analysis would be this that, these shooting incident numbers are still higher than expected. Each and every life is valuable and people
+  must be taught the value of life every day. As per our own personal opinions looking at the trend lines in line chart and looking at individual
+  shootings Statistics in each state our opinion is this that stronger/stricter guns laws are necessary for every US state at this point of time.
+  We're not against guns neither against our 2nd Amendment, As per our data visualizations we can conclude that stronger guns laws must be implemented.
+
+    <center>
+    <h3> PART 3 - MASS SHOOTINGS (1982-2018)</h3>
+    </center>
+    Mass shootings are really very unique and terrifying at the same time. Before we make our analysis and conclusion to answer our question, first
+    we will clarify that mass shooting are usually shootings in which 3 or more people get killed. They are terrifying because they happen at the most
+    mundane places without any warning. As per data and visualization we saw different places where mass shootings have taken place in the US, different
+    Guns Used and how many fatalities were there in each year of mass shootings. Even though these numbers were relatively small, mass shootings are still
+    a very big cause for concern. We looked at the guns that were used in these shootings and noticed how Rifles and handguns were by far the most favorite
+    form of assault weapon used by the shooters. In our data, we also gained an insight into the shooters mental health and it turned our roughly 60% of
+    the shooters had mental issues. In our conclusion and defense, data and visualizations gave us a solid evidence that why we're in a dire need of stricter
+    gun laws across the US. Florida high school shooting is one prime example where shooter named Nicholas Cruz had mental issues and ended up killing 17 kids.
+    Stephen Paddock, Las Vegas shooter also had mental issues and roughly 58 people were killed and close to 550 people were injured. These shootings
+    are sporadic but strict gun laws and strict background check are possible solutions to these problems.
+
+    <hr></hr>
+
+    <center>
+      <h3>     </h3>
+    </center>
+</div>
+<div class="span6" id="area13"></div>
+</div>
+    </body>
+  </html>
