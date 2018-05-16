@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title> Line Chart of shootings in US, 2003-2016</title>
+<style>
+
+.line {
+  fill: none;
+  stroke: red;
+  stroke-width: 2px;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: black;
+}
+
+</style>
+<body>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<style type="text/css">
+</style>
+</head>
+<script>
+
+var margin = {
+  top: 20,
+  right: 60,
+  bottom: 50,
+  left: 70
+},
+    width = 960 - margin.left - margin.right;
+    height = 500 - margin.top - margin.bottom;
+    var parseTime = d3.timeParse("%Y");
+    var bisectDate = d3.bisector(function (d) {
+      return d.year;
+    }).left;
+
+var x = d3.scaleTime()
+.range([0, width]);
+
+var y = d3.scaleLinear()
+.range([height, 0]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("stateshootings.csv", function(error, data) {
+  if (error) throw error;
+
+  data.forEach(function(d) {
+      d.year = parseTime(d.year);
+      d.shootings = +d.shootings;
+  });
+
+  x.domain([d3.min(data, function(d) {
+    return d.year;
+  }),
+d3.max(data, function(d) {
+  return d.year;
+})]);
+  y.domain([0,d3.max(data,function(d) {
+    return d.shootings;
+  })]).nice();
+
+  var valueline = d3.line()
+      .x(function(d) {
+        return x(d.year);
+      })
+      .y(function(d) {
+        return y(d.shootings);
+      });
+
+
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("d", valueline);
+
+      var focus = svg.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+
+  focus.append("circle")
+      .attr("r", 4.5);
+
+      focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+      svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() { focus.style("display", null); })
+      .on("mouseout", function() { focus.style("display", "none"); })
+      .on("mousemove", mousemove);
+
+
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+      svg.append("text")
+      .attr("transform","translate(" + (width/2) + " ," +(height + margin.top + 20) + ")")
+      .style("text-anchor", "middle")
+      .text("year");
+  svg.append("g")
+      .call(d3.axisLeft(y));
+      svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Number of shootings");
+
+            
+
+            function mousemove() {
+      var x0 = x.invert(d3.mouse(this)[0]),
+          i = bisectDate(data, x0, 1),
+          d0 = data[i - 1],
+          d1 = data[i],
+          d = x0 - d0.year > d1.year - x0 ? d1 : d0;
+      focus.attr("transform", "translate(" + x(d.year) + "," + y(d.shootings) + ")");
+      focus.select("text").text(function() { return d.shootings; });
+    }
+
+});
+
+</script>
+</body>
+</html>
